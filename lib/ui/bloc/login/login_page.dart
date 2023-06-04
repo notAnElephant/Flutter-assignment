@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_homework/ui/bloc/login/login_bloc.dart';
-import 'package:form_validator/form_validator.dart';
+import 'package:validators/validators.dart';
 
 class LoginPageBloc extends StatefulWidget {
   const LoginPageBloc({super.key});
@@ -12,6 +12,10 @@ class LoginPageBloc extends StatefulWidget {
 
 class _LoginPageBlocState extends State<LoginPageBloc> {
   bool rememberMe = false;
+  String? errorMessageEmail;
+  String? errorMessagePassword;
+  String email = "";
+  String password = "";
 
   @override
   void initState() {
@@ -28,26 +32,32 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextFormField(
-              validator: ValidationBuilder().minLength(6).build(),
+            child: TextField(
               decoration: InputDecoration(
                 labelText: "Email",
+                errorText: errorMessageEmail,
               ),
-              onChanged: (_) {
-                //TODO delete error message
+              onChanged: (value) {
+                setState(() {
+                  errorMessageEmail = null;
+                  email = value;
+                });
               },
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: TextFormField(
+            child: TextField(
               obscureText: true,
-              validator: ValidationBuilder().email().build(),
               decoration: InputDecoration(
                 labelText: "Password",
+                errorText: errorMessagePassword,
               ),
-              onChanged: (_) {
-                //TODO delete error message
+              onChanged: (value) {
+                setState(() {
+                  errorMessagePassword = null;
+                  password = value;
+                });
               },
             ),
           ),
@@ -69,7 +79,25 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
           ),
           ElevatedButton(
             onPressed: () {
-              // Perform login logic here
+              bool passwordValid = true, emailValid = true;
+              if (!isLength(password, 6)) {
+                setState(() {
+                errorMessagePassword =
+                      "Password must be at least 6 characters long";
+                });
+                passwordValid = false;
+              }
+              if (!isEmail(email)) {
+                setState(() {
+                errorMessageEmail = "Email is not valid";
+                });
+                emailValid = false;
+              }
+              if (passwordValid && emailValid) {
+                BlocProvider.of<LoginBloc>(context).add(
+                  LoginSubmitEvent(email, password, rememberMe),
+                );
+              }
             },
             child: const Text("Login"),
           ),

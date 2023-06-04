@@ -39,7 +39,7 @@ dependencies:
   shared_preferences: ^2.0.15
   username_gen: ^1.0.4
   equatable: ^2.0.5
-  form_validator: ">=0.1.1 <2.0.0"
+  validators: ^3.0.0
 
 dev_dependencies:
   flutter_test:
