@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
@@ -16,9 +14,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginSubmitEvent>((event, emit) async {
       if (state is! LoginForm) return;
       emit(LoginLoading());
-      Response? response;
       try {
-        response = await GetIt.I<Dio>().post(
+        var response = await GetIt.I<Dio>().post(
           "/login",
           data: {
             "email": event.email,
@@ -27,28 +24,23 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         );
         emit(LoginSuccess());
         if(event.rememberMe) {
-          var prefs = await SharedPreferences.getInstance();
-          prefs.setString('rememberMe', response.data['token']);
+          GetIt.I<SharedPreferences>().setString('token', response.data['token']);
         }
         emit(LoginForm());
       } catch (e) {
-        print("error message: ${response!.data['message']}");
-        emit(LoginError(response.data['message']));
+        emit(LoginError(e is DioError ? e.response!.data['message'] : e.toString()));
       }
       emit(LoginForm());
-      // finally{
-      //
-      // }
     });
 
     on<LoginAutoLoginEvent>((event, emit) async {
+      //TODO ha ez is benne van, akkor elszáll az app
+      return;
       emit(LoginLoading());
-      var prefs = await SharedPreferences.getInstance();
-      var token = prefs.getString('token');
+      var token = GetIt.I<SharedPreferences>().getString('token');
       if (token != null) {
-        Response? response;
         try {
-          response = await GetIt.I<Dio>().post(
+          await GetIt.I<Dio>().post(
             "/login",
             data: {
               "token": token,
@@ -56,7 +48,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           );
           emit(LoginSuccess());
         } catch (e) {
-          emit(LoginError(response!.data['message']));
+          emit(LoginError(e is DioError ? e.response!.data['message'] : e.toString()));
         }
       }
       emit(LoginForm());

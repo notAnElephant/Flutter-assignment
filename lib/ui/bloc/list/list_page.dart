@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_homework/ui/bloc/list/list_bloc.dart';
@@ -22,38 +21,6 @@ class _ListPageBlocState extends State<ListPageBloc> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ListBloc, ListState>(
-        listenWhen: (_, state) => state is ListError,
-        listener: (context, state) {
-          if (state is ListError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-              ),
-            );
-          }
-        },
-        buildWhen: (_, state) => state is ListInitial,
-        builder: (context, state) {
-          switch (state.runtimeType) {
-            case ListInitial:
-              context
-                  .read<ListBloc>()
-                  .add(ListLoadEvent());
-              return const Text("initial state");
-            case ListLoading:
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            case ListLoaded:
-              return buildList(context, (state as ListLoaded).users);
-            default:
-              return const Text("unexpected state");
-          }
-        });
-  }
-
-  Widget buildList(BuildContext context, List<UserItem> users) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("List page"),
@@ -61,14 +28,46 @@ class _ListPageBlocState extends State<ListPageBloc> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              var prefs = await SharedPreferences.getInstance();
-              prefs.clear();
-              //TODO navigate to /login
+              GetIt.I<SharedPreferences>().clear();
+              Navigator.pushReplacementNamed(context, "/login");
             },
           ),
         ],
       ),
-      body: ListView.builder(
+      body: BlocConsumer<ListBloc, ListState>(
+          listenWhen: (_, state) => state is ListError || state is ListInitial,
+          listener: (context, state) {
+            if (state is ListError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                ),
+              );
+            }
+            else if (state is ListInitial) {
+              context
+                  .read<ListBloc>()
+                  .add(ListLoadEvent());
+            }
+          },
+          buildWhen: (_, state) => state is ListLoaded || state is ListLoading,
+          builder: (context, state) {
+            switch (state.runtimeType) {
+              case ListLoading:
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              case ListLoaded:
+                return buildList(context, (state as ListLoaded).users);
+              default:
+                throw Exception("Unknown state: $state");
+            }
+          }),
+    );
+  }
+
+  Widget buildList(BuildContext context, List<UserItem> users) {
+     return ListView.builder(
         padding: const EdgeInsets.all(8),
         itemBuilder: (context, index) {
           var user = users[index];
@@ -82,6 +81,6 @@ class _ListPageBlocState extends State<ListPageBloc> {
             ),
           );
         },
-      ),);
+      );
   }
 }

@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_homework/network/data_source_interceptor.dart';
+import 'package:flutter_homework/ui/bloc/list/list_bloc.dart';
+import 'package:flutter_homework/ui/bloc/list/list_page.dart';
 import 'package:flutter_homework/ui/bloc/login/login_bloc.dart';
 import 'package:flutter_homework/ui/bloc/login/login_page.dart';
 import 'package:get_it/get_it.dart';
@@ -51,6 +53,10 @@ class MyApp extends StatelessWidget {
         create: (context) => LoginBloc(),
         child: const LoginPageBloc(),
       ),
+      routes: {
+        "/login": (context) => BlocProvider(create: (context) => LoginBloc(), child: const LoginPageBloc()),
+        "/list": (context) => BlocProvider(create: (context) => ListBloc(), child: const ListPageBloc()),
+      },
       //DO NOT MODIFY
       navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
       //DO NOT MODIFY

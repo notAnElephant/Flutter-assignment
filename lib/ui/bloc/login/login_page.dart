@@ -30,7 +30,7 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
         title: const Text("Login"),
       ),
       body: BlocConsumer<LoginBloc, LoginState>(
-          listenWhen: (_, state) => state is LoginError,
+          listenWhen: (_, state) => state is LoginError || state is LoginSuccess,
           listener: (context, state) {
             if (state is LoginError) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -39,15 +39,18 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
                 ),
               );
             }
+            else if (state is LoginSuccess) {
+              Navigator.pushReplacementNamed(context, "/list");
+            }
           },
           buildWhen: (_, state) => state is LoginForm,
           builder: (context, state) {
-            if (state is LoginForm || state is LoginError) {
+            if (state is LoginForm) {
               return buildLoginForm(context, state);
-            } else
-              //if(state is LoginSuccess ){
-              return const Text("Login success"); //TODO navigate to list page instead
-            //}
+            }
+            else {
+              throw Exception("Unknown state: $state");
+            }
           }),
     );
   }
