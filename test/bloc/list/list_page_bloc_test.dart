@@ -17,10 +17,10 @@ void main() {
         initialState: ListInitial());
     await tester.pumpWidget(
       MaterialApp(
-        home: BlocProvider<ListBloc>.value(
-          value: bloc,
-          child: const ListPageBloc(),
-        ),
+        routes:
+        {
+          '/': (context) => const ListPageBloc(),
+        },
       ),
     );
     verify(() => bloc.add(ListLoadEvent()));
