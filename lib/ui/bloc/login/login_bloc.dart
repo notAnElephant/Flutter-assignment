@@ -5,6 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'TokenProvider.dart';
+
 part 'login_event.dart';
 
 part 'login_state.dart';
@@ -23,12 +25,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           },
         );
         emit(LoginSuccess());
-        if(event.rememberMe) {
-          GetIt.I<SharedPreferences>().setString('token', response.data['token']);
+        GetIt.I<TokenProvider>().token = response.data['token'];
+        if (event.rememberMe) {
+          GetIt.I<SharedPreferences>()
+              .setString('token', response.data['token']);
         }
         emit(LoginForm());
       } catch (e) {
-        emit(LoginError(e is DioError ? e.response!.data['message'] : e.toString()));
+        emit(LoginError(
+            e is DioError ? e.response!.data['message'] : e.toString()));
       }
       emit(LoginForm());
     });
@@ -48,7 +53,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           );
           emit(LoginSuccess());
         } catch (e) {
-          emit(LoginError(e is DioError ? e.response!.data['message'] : e.toString()));
+          emit(LoginError(
+              e is DioError ? e.response!.data['message'] : e.toString()));
         }
       }
       emit(LoginForm());
