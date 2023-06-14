@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_homework/ui/bloc/login/login_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:validators/validators.dart';
+
+import 'TokenProvider.dart';
 
 class LoginPageBloc extends StatefulWidget {
   const LoginPageBloc({super.key});
@@ -40,7 +43,8 @@ class _LoginPageBlocState extends State<LoginPageBloc> {
               );
             }
             else if (state is LoginSuccess) {
-              Navigator.pushReplacementNamed(context, "/list");
+              Navigator.of(context).pushReplacementNamed('/list',
+              arguments: GetIt.I<TokenProvider>().token);
             }
           },
           buildWhen: (_, state) => state is LoginForm,

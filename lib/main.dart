@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_homework/network/data_source_interceptor.dart';
 import 'package:flutter_homework/ui/bloc/list/list_bloc.dart';
 import 'package:flutter_homework/ui/bloc/list/list_page.dart';
+import 'package:flutter_homework/ui/bloc/login/TokenProvider.dart';
 import 'package:flutter_homework/ui/bloc/login/login_bloc.dart';
 import 'package:flutter_homework/ui/bloc/login/login_page.dart';
 import 'package:get_it/get_it.dart';
@@ -32,12 +33,12 @@ Future configureFixDependencies() async {
   GetIt.I.registerSingleton(dio);
   GetIt.I.registerSingleton(await SharedPreferences.getInstance());
   GetIt.I.registerSingleton(<NavigatorObserver>[]);
+
+  GetIt.I.registerSingleton(TokenProvider());
 }
 
 //Add custom dependencies if necessary
-Future configureCustomDependencies() async {
-
-}
+Future configureCustomDependencies() async {}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -54,8 +55,10 @@ class MyApp extends StatelessWidget {
         child: const LoginPageBloc(),
       ),
       routes: {
-        "/login": (context) => BlocProvider(create: (context) => LoginBloc(), child: const LoginPageBloc()),
-        "/list": (context) => BlocProvider(create: (context) => ListBloc(), child: const ListPageBloc()),
+        "/login": (context) => BlocProvider(
+            create: (context) => LoginBloc(), child: const LoginPageBloc()),
+        "/list": (context) => BlocProvider(
+            create: (context) => ListBloc(), child: const ListPageBloc()),
       },
       //DO NOT MODIFY
       navigatorObservers: GetIt.I<List<NavigatorObserver>>(),
